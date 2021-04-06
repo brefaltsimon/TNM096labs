@@ -33,6 +33,12 @@ const std::array<std::vector<Move>, 9> LEGAL_MOVES = {
     std::vector<Move>{Move::UP, Move::LEFT}                           // 2, 2
 };
 
+struct Node
+{
+    Puzzle p;
+    int cost;
+};
+
 Puzzle create_new_puzzle()
 {
     std::array<int, 9> p = {0, 1, 2, 3, 4, 5, 6, 7, 8};
@@ -61,26 +67,49 @@ int cells_out_of_place(const Puzzle &p, const Puzzle &s)
     {
         if (p[i] == 0)
             continue;
-        
+
         count += !(p[i] == s[i]);
     }
 
     return count;
 }
 
-// Puzzle make_move(const Move &m, const Puzzle &p)
-// {
-//     auto row = std::find(p.begin(), p.end(), 0);
-//     switch ()
-//     {
-//     }
-//     return
-// }
+Puzzle make_move(const Move &m, Puzzle p)
+{
+    auto empty_slot = std::find(p.begin(), p.end(), 0);
+    switch (m)
+    {
+    case Move::UP:
+        std::swap(*empty_slot, *(empty_slot - 3));
+        break;
+    case Move::DOWN:
+        std::swap(*empty_slot, *(empty_slot + 3));
+        break;
+    case Move::LEFT:
+        std::swap(*empty_slot, *(empty_slot - 1));
+        break;
+    case Move::RIGHT:
+        std::swap(*empty_slot, *(empty_slot + 1));
+    default:
+        break;
+    }
+    return p;
+}
 
-// std::vector<Puzzle> expand_node(const Puzzle &puzzle)
-// {
+std::vector<Node> expand_node(const Node &node)
+{
+    // Maybe there should be a struct holding empty_slot index/iterator
+    auto empty_slot = std::find(node.p.begin(), node.p.end(), 0);
+    int index = empty_slot - node.p.begin();
+    auto legal_moves = LEGAL_MOVES[index];
 
-// }
+    std::vector<Node> result;
+
+    std::transform(legal_moves.begin(), legal_moves.end(),
+                   std::back_inserter(result),
+                   [&node](const Move &m) { return Node{make_move(m, node.p), node.cost + 1}; });
+    return result;
+}
 
 void solve_puzzle(Puzzle &p, const Puzzle &s)
 {
@@ -105,15 +134,23 @@ int main()
     // Sanity checks
     std::cout << "Number of cells out of place: " << cells_out_of_place(puzzle, solved) << '\n';
 
-    // Puzzle dummy = {1, 1, 1, 1, 0, 1, 1, 1, 1};
+    // Puzzle dummy = {1, 1, 1, 1, 0, 1, 1, 1, 1}; // Simple test puzzle
     // std::cout << "Move up:\n";
-    // print_puzzle(make_move(Move::UP, dummy));
+    // print_puzzle(make_move(Move::UP, puzzle));
     // std::cout << "Move down:\n";
-    // print_puzzle(make_move(Move::DOWN, dummy));
+    // print_puzzle(make_move(Move::DOWN, puzzle));
     // std::cout << "Move left:\n";
-    // print_puzzle(make_move(Move::LEFT, dummy));
+    // print_puzzle(make_move(Move::LEFT, puzzle));
     // std::cout << "Move right:\n";
-    // print_puzzle(make_move(Move::RIGHT, dummy));
+    // print_puzzle(make_move(Move::RIGHT, puzzle));
+
+    Node n{puzzle, 0};
+    std::vector<Node> nodes = expand_node(n);
+    std::cout << "Expand node:\n";
+    std::for_each(nodes.begin(), nodes.end(), [](const Node &n) { print_puzzle(n.p); std::cout << "Cost: " << n.cost << '\n'; });
+    std::vector<Node> more_nodes = expand_node(nodes[0]);
+    std::cout << "Expand first expanded node:\n";
+    std::for_each(more_nodes.begin(), more_nodes.end(), [](const Node &n) { print_puzzle(n.p); std::cout << "Cost: " << n.cost << '\n'; });
 
     return 0;
 }
