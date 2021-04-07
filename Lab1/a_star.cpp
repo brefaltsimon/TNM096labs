@@ -6,6 +6,9 @@
 #include <chrono>
 #include <functional>
 #include <unordered_set>
+#include <queue>
+#include <memory>
+#include <cmath>
 
 /*
 Indices in puzzle:
@@ -108,7 +111,10 @@ namespace std {
 
 Puzzle create_new_puzzle(int num_shuffle_moves = 100)
 {
-    Puzzle p = {6, 4, 7, 8, 5, 0, 3, 2, 1};
+    // Puzzle p = {6, 4, 7, 8, 5, 0, 3, 2, 1};
+    Puzzle p = {8, 6, 7, 2, 5, 4, 3, 0, 1};
+
+    // Puzzle p = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 
     // for (int i = 0; i < num_shuffle_moves; ++i) {
     //     auto empty_slot = std::find(p.begin(), p.end(), 0);
@@ -177,47 +183,54 @@ std::vector<Node> expand_node(const Node &node)
 
 std::vector<Puzzle> solve_puzzle(const Puzzle &p, const Puzzle &s, Heuristic heuristic)
 {
-    std::vector<Node> open;
-    std::unordered_set<Node> closed;
-
     // Rank nodes by lowest estimated cost
     auto compare_nodes = [&s, heuristic](const Node &a, const Node &b) -> bool {
         return a.cost + heuristic(a.p, s) > b.cost + heuristic(b.p, s);
     };
 
+    std::priority_queue<Node, std::vector<Node>, decltype(compare_nodes)> open(compare_nodes);
+    std::unordered_set<Node> closed;
+
     // Initial node is pushed into the open heap
-    open.push_back({p, 0});
+    open.push({p, 0});
 
     // Run A* search
-    for(Node current = open.front();                        // Get a copy of the current best node
+    for(Node current = open.top();                        // Get a copy of the current best node
         !std::equal(s.begin(), s.end(), current.p.begin()); // Stop when the current puzzle is the solution
-        current = open.front())                             // Update current node
+        current = open.top())                             // Update current node
     {
         // Print current puzzle state for debugging
         // print_puzzle(current.p);
         // std::cout << '\n';
 
+        open.pop();
+
         // Expand current node
         std::vector<Node> children = expand_node(current);
-        std::copy_if(
-            children.begin(),
-            children.end(),
-            std::back_inserter(open),
-            [&closed](const Node &n) { return closed.find(n) == closed.end(); });
+        // std::copy_if(
+        //     children.begin(),
+        //     children.end(),
+        //     std::back_inserter(open),
+        //     [&closed](const Node &n) { return closed.find(n) == closed.end(); });
+        for (auto child : children)
+        {
+            if (closed.find(child) == closed.end())
+                open.push(child);
+        }
 
         // Make sure the current node is moved to the closed list
         closed.emplace(current);
         // Re-heapify and remove last element
         // std::pop_heap(open.begin(), open.end(), compare_nodes);
-        std::swap(open.front(), open.back());
-        open.pop_back();
-        std::make_heap(open.begin(), open.end(), compare_nodes);
+        // std::swap(open.front(), open.back());
+        // open.pop();
+        // std::make_heap(open.begin(), open.end(), compare_nodes);
     }
     
     // The node corresponding to the solution is now on top of the heap
     std::vector<Puzzle> moves;
-    moves.push_back(open.front().p);
-    for(auto n = open.front().parent; n != nullptr; n = n->parent)
+    moves.push_back(open.top().p);
+    for(auto n = open.top().parent; n != nullptr; n = n->parent)
     {
         moves.push_back(n->p);
     }
@@ -252,7 +265,7 @@ int main()
     std::cout << "\nTook " << time.count()/1000.0f << " seconds to solve\n";
 
     // Print the solution
-    std::cout << std::endl << "The steps taken: " << std::endl;
+    std::cout << std::endl << "The steps taken: (" << road_to_victory.size() << " steps)" << std::endl;
     std::for_each(road_to_victory.rbegin(), road_to_victory.rend(),  [](const Puzzle &p){ print_puzzle(p); std::cout << '\n'; });
 
 
