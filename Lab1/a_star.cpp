@@ -9,6 +9,7 @@
 #include <queue>
 #include <memory>
 #include <numeric>
+#include <cmath>
 
 /*
 Indices in puzzle:
@@ -103,19 +104,8 @@ namespace std
     };
 }
 
-// {4, 1, 3, 7, 2, 6, 0, 5, 8}    ##### easy with 6 moves
-// {7, 2, 4, 5, 0, 6, 8, 3, 1}     ##### medium 20 moves
-// {6, 4, 7, 8, 5, 0, 3, 2, 1}    ##### difficult 31 moves
-
-// 31 moves (most difficult) {8, 6, 7, 2, 5, 4, 3, 0, 1};
-
 Puzzle create_new_puzzle(int num_shuffle_moves = 100)
 {
-    // Puzzle p = {4, 1, 3, 7, 2, 6, 0, 5, 8}; // Easy
-    // Puzzle p = {7, 2, 4, 5, 0, 6, 8, 3, 1}; // Medium
-    // Puzzle p = {6, 4, 7, 8, 5, 0, 3, 2, 1}; // Hard
-    // Puzzle p = {8, 6, 7, 2, 5, 4, 3, 0, 1}; // Hardest
-
     Puzzle p = {1, 2, 3, 4, 5, 6, 7, 8, 0};
 
     for (int i = 0; i < num_shuffle_moves; ++i) {
@@ -128,8 +118,6 @@ Puzzle create_new_puzzle(int num_shuffle_moves = 100)
         p = make_move(legal_moves[selection], p);
     }
 
-    // Old, possibly degenerate solution for shuffling
-    // std::random_shuffle(p.begin(), p.end());
     return p;
 }
 
@@ -208,19 +196,10 @@ std::vector<Puzzle> solve_puzzle(const Puzzle &p, const Puzzle &s, Heuristic heu
          !std::equal(s.begin(), s.end(), current.p.begin()); // Stop when the current puzzle is the solution
          current = open.top())                               // Update current node
     {
-        // Print current puzzle state for debugging
-        // print_puzzle(current.p);
-        // std::cout << '\n';
-
         open.pop();
 
         // Expand current node
         std::vector<Node> children = expand_node(current);
-        // std::copy_if(
-        //     children.begin(),
-        //     children.end(),
-        //     std::back_inserter(open),
-        //     [&closed](const Node &n) { return closed.find(n) == closed.end(); });
         for (auto child : children)
         {
             if (closed.find(child) == closed.end())
@@ -229,11 +208,6 @@ std::vector<Puzzle> solve_puzzle(const Puzzle &p, const Puzzle &s, Heuristic heu
 
         // Make sure the current node is moved to the closed list
         closed.emplace(current);
-        // Re-heapify and remove last element
-        // std::pop_heap(open.begin(), open.end(), compare_nodes);
-        // std::swap(open.front(), open.back());
-        // open.pop();
-        // std::make_heap(open.begin(), open.end(), compare_nodes);
     }
 
     // The node corresponding to the solution is now on top of the heap
@@ -258,17 +232,20 @@ int main()
     print_puzzle(solved);
 
     // The random puzzle to solve
-    Puzzle puzzle = create_new_puzzle();
-    std::cout << "Puzzle\n";
+    // Puzzle puzzle = create_new_puzzle();
+    // Puzzle puzzle = {4, 1, 3, 7, 2, 6, 0, 5, 8}; // Easy
+    // Puzzle puzzle = {7, 2, 4, 5, 0, 6, 8, 3, 1}; // Medium
+    // Puzzle puzzle = {6, 4, 7, 8, 5, 0, 3, 2, 1}; // Hard
+    Puzzle puzzle = {8, 6, 7, 2, 5, 4, 3, 0, 1}; // Hardest
+    std::cout << "\nPuzzle\n";
     print_puzzle(puzzle);
     // std::cout << '\n';
 
-    // Sanity checks
-    std::cout << "\nInitial number of cells out of place: " << cells_out_of_place(puzzle, solved) << '\n';
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Solve the puzzle
-    auto start = std::chrono::high_resolution_clock::now();
     std::vector<Puzzle> road_to_victory = solve_puzzle(puzzle, solved, manhattan_distance);
+    
     auto end = std::chrono::high_resolution_clock::now();
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "\nTook " << time.count() / 1000.0f << " seconds to solve\n";
@@ -277,24 +254,6 @@ int main()
     std::cout << std::endl
               << "The steps taken: (" << road_to_victory.size() - 1 << " steps)" << std::endl;
     std::for_each(road_to_victory.rbegin(), road_to_victory.rend(), [](const Puzzle &p) { print_puzzle(p); std::cout << '\n'; });
-
-    // // Puzzle dummy = {1, 1, 1, 1, 0, 1, 1, 1, 1}; // Simple test puzzle
-    // // std::cout << "Move up:\n";
-    // // print_puzzle(make_move(Move::UP, puzzle));
-    // // std::cout << "Move down:\n";
-    // // print_puzzle(make_move(Move::DOWN, puzzle));
-    // // std::cout << "Move left:\n";
-    // // print_puzzle(make_move(Move::LEFT, puzzle));
-    // // std::cout << "Move right:\n";
-    // // print_puzzle(make_move(Move::RIGHT, puzzle));
-
-    // Node n{puzzle, 0};
-    // std::vector<Node> nodes = expand_node(n);
-    // std::cout << "Expand node:\n";
-    // std::for_each(nodes.begin(), nodes.end(), [](const Node &n) { print_puzzle(n.p); std::cout << "Cost: " << n.cost << '\n'; });
-    // std::vector<Node> more_nodes = expand_node(nodes[0]);
-    // std::cout << "Expand first expanded node:\n";
-    // std::for_each(more_nodes.begin(), more_nodes.end(), [](const Node &n) { print_puzzle(n.p); std::cout << "Cost: " << n.cost << '\n'; });
 
     return 0;
 }
