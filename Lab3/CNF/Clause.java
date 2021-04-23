@@ -9,8 +9,15 @@ public class Clause {
     private Set<String> negatives;
 
     public Clause(String positives, String negatives) {
-        this.positives = new HashSet<>(Arrays.asList(positives.split(" ")));
-        this.negatives = new HashSet<>(Arrays.asList(negatives.split(" ")));
+        this.positives = new HashSet<>();
+        if (!positives.isEmpty()) {
+            this.positives.addAll(Arrays.asList(positives.split(" ")));
+        }
+
+        this.negatives = new HashSet<>();
+        if (!negatives.isEmpty()) {
+            this.negatives.addAll(Arrays.asList(negatives.split(" ")));
+        }
     }
 
     public Clause(Set<String> positives, Set<String> negatives) {
@@ -34,8 +41,15 @@ public class Clause {
         return this.subsumes(other) || this.equals(other);
     }
 
-    public boolean equals(Clause other) {
-        return this.positives.equals(other.positives) && this.negatives.equals(other.negatives);
+    @Override
+    public boolean equals(Object other) {
+        Clause o = (Clause) other;
+        return this.positives.equals(o.positives) && this.negatives.equals(o.negatives);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.toString().hashCode();
     }
 
     public boolean subsumes(Clause other) {
@@ -60,8 +74,12 @@ public class Clause {
     public Set<String> cloneNegatives() {
         return new HashSet<>(this.negatives);
     }
-    
+
     public String toString() {
-        return "Positives: " + positives.toString() + "\nNegatives: " + negatives.toString();
+        if (positives.isEmpty() && negatives.isEmpty())
+            return "Empty clause";
+
+        return String.join(", ", positives) + (negatives.isEmpty() ? "" : (positives.isEmpty() ? "" : ", ") + "not ")
+                + String.join(", not ", negatives);
     }
 }
