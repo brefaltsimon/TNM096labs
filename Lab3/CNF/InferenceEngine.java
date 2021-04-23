@@ -21,13 +21,41 @@ public class InferenceEngine {
             }
         }
 
+        Set<Clause> toRemove = new HashSet<>();
         for (Clause b : KB) {
             if (a.subsumes(b)) {
-                KB.remove(b);
+                toRemove.add(b);
+            }
+        }
+        KB.removeAll(toRemove);
+
+        KB.add(a);
+    }
+
+    private static ArrayList<Clause[]> getUniquePairs(ArrayList<Clause> clauses) {
+        ArrayList<Clause[]> pairs = new ArrayList<>();
+
+        for (int i = 0; i < clauses.size() - 1; ++i) {
+            for (int j = i + 1; j < clauses.size(); ++j) {
+                pairs.add(new Clause[] { clauses.get(i), clauses.get(j) });
             }
         }
 
-        KB.add(a);
+        return pairs;
+    }
+
+    public static void removeSubsumptions(Set<Clause> clauses) {
+        ArrayList<Clause[]> pairs = getUniquePairs(new ArrayList<Clause>(clauses));
+
+        Set<Clause> toRemove = new HashSet<>();
+        for (Clause[] pair : pairs) {
+            if (pair[0].subsumes(pair[1]))
+                toRemove.add(pair[1]);
+            else if (pair[1].subsumes(pair[0]))
+                toRemove.add(pair[0]);
+        }
+
+        clauses.removeAll(toRemove);
     }
 
     public Set<Clause> solve() {
@@ -39,18 +67,15 @@ public class InferenceEngine {
             Set<Clause> S = new HashSet<>();
             expandedKB = new ArrayList<>(KB);
 
-            for (int i = 0; i < expandedKB.size() - 1; ++i) {
-                for (int j = i + 1; j < expandedKB.size(); ++j) {
-                    // construct pair array[i], array[j]
-                    Optional<Clause> c = InferenceEngine.resolve(expandedKB.get(i), expandedKB.get(j));
-                    if (c.isPresent()) {
-                        S.add(c.get());
-                    }
+            for (Clause[] AB : getUniquePairs(expandedKB)){
+                Optional<Clause> c = InferenceEngine.resolve(AB[0], AB[1]);
+                if (c.isPresent()) {
+                    S.add(c.get());
                 }
             }
 
             if (S.isEmpty()) {
-                return new HashSet<Clause>(KB);
+                break;
             }
 
             for (Clause s : S) {
