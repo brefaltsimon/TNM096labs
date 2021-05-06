@@ -6,8 +6,8 @@ act(go(X, Y),
 
 act(push(B, X, Y),
     [on(floor), box(B), at(B, X), at(shakey, X), connected(X, Y), light_on(X)],
-    [at(B, X)],
-    [at(B, Y)]).
+    [at(B, X), at(shakey, X)],
+    [at(B, Y), at(shakey, Y)]).
 
 act(climb_up(B),
     [box(B), at(shakey, X), at(B, X), on(floor)],
