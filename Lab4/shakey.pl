@@ -5,7 +5,7 @@ act(go(X, Y),
     [at(shakey, Y)]).
 
 act(push(B, X, Y),
-    [on(floor), box(B), at(B, X), connected(X, Y), light_on(X)],
+    [on(floor), box(B), at(B, X), at(shakey, X), connected(X, Y), light_on(X)],
     [at(B, X)],
     [at(B, Y)]).
 
@@ -29,27 +29,11 @@ act(turn_off(S),
    [light_on(R), light_on(S)],
    [light_off(R), light_off(S)]).
 
-% Describe the state of the world in STRIPS notation
-
-% connected(X, corridor) :- place(X), X \= corridor.
-% connected(corridor, X) :- place(X), X \= corridor.
-% connected(room_1, switch_1). 
-% connected(switch_1, room_1).
-% connected(room_2, switch_2). 
-% connected(switch_2, room_2).
-% connected(room_3, switch_3). 
-% connected(switch_3, room_3).
-% connected(room_4, switch_4). 
-% connected(switch_4, room_4).
-
-% light_on(S) :- switch(S), connected(S, R), room(R), light_on(R).
-% light_off(S) :- switch(S), connected(S, R), room(R), light_off(R).
-
 % Goal state for Shakey
 goal_state([
-    at(shakey, room_3)
-    % light_off(room_1),
-    % at(box_2, room_2)
+    at(shakey, room_3),
+    light_off(room_1),
+    at(box_2, room_2)
 ]).
 
 % Initial state for Shakey
@@ -87,15 +71,15 @@ initial_state([
     switch(switch_3),
     switch(switch_4),
 
-    place(room_1),
-    place(room_2),
-    place(room_3),
-    place(room_4),
-    place(switch_1),
-    place(switch_2),
-    place(switch_3),
-    place(switch_4),
-    place(corridor),
+    % place(room_1),
+    % place(room_2),
+    % place(room_3),
+    % place(room_4),
+    % place(switch_1),
+    % place(switch_2),
+    % place(switch_3),
+    % place(switch_4),
+    % place(corridor),
 
     connected(room_1, switch_1),
     connected(switch_1, room_1),
