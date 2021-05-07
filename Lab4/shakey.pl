@@ -31,9 +31,9 @@ act(turn_off(S),
 
 % Goal state for Shakey
 goal_state([
-    at(shakey, room_3),
-    light_off(room_1),
-    at(box_2, room_2)
+    at(shakey, room_3)
+    % light_off(room_1)
+    % at(box_2, room_2)
 ]).
 
 % Initial state for Shakey
@@ -70,16 +70,6 @@ initial_state([
     switch(switch_2),
     switch(switch_3),
     switch(switch_4),
-
-    % place(room_1),
-    % place(room_2),
-    % place(room_3),
-    % place(room_4),
-    % place(switch_1),
-    % place(switch_2),
-    % place(switch_3),
-    % place(switch_4),
-    % place(corridor),
 
     connected(room_1, switch_1),
     connected(switch_1, room_1),
