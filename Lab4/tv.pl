@@ -23,13 +23,13 @@ derivedPlans(one).
 
 % ACTIONS:    action(Name,Prec,Del,Add)
 action(study,[],[],[readyForExam]).
-action(train,[],[],[goodShape,hungry]).
-action(eat,[],[],[sated]).
-action(watchTV,[],[],[watchedTV]).
+action(train,[],[badShape, sated],[goodShape,hungry]).
+action(eat,[],[hungry],[sated]).
+action(watchTV,[readyForExam],[],[watchedTV]).
 
 
 % DOMAIN KNOWLEDGE
-ags253g <- [].
+% ags253g <- [].
 
 % FLUENT
 fluent(goodShape).
