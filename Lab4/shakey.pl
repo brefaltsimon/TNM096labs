@@ -31,9 +31,9 @@ act(turn_off(S),
 
 % Goal state for Shakey
 goal_state([
-    at(shakey, room_3)
+    % at(shakey, room_1)
     % light_off(room_1)
-    % at(box_2, room_2)
+    at(box_2, room_2)
 ]).
 
 % Initial state for Shakey

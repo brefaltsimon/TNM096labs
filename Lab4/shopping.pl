@@ -48,3 +48,9 @@ location(X) <- [store(X)].
 
 % INITIAL SITUATION
 holds(at(chris,home),init).
+
+%% plan :- solve([has(chris,drill)],2).
+%% plan :- solve([has(chris,drill), has(chris, banana)],4).
+%% plan :- solve([has(chris,bread), has(chris, cheese)],3).
+%% plan :- solve([objat(bread,home)],3).
+% plan :- solve([obj_at(bread,home), obj_at(cheese, home)],6).
