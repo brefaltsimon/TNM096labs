@@ -1,5 +1,5 @@
 % PARTIAL ORDER PLANNER WITH SEQUENTIAL AND PARALLEL ACTIONS
-% by Pierangelo Dell'Acqua 2016-03-04
+% by Pierangelo Dell'Acqua 2016-03-04'
 
 % =============================================================================
 % goal(A,P) is a goal
@@ -24,9 +24,9 @@
 
 % \= is the object level not equal
 :- op(700,xfx, \=).
-:- op(700,fx, -). %negation
+:- op(700,fx, -). % negation
 :- op(1200,xfx,[<-]).
-:-op(500,xfx, ?).    % disjunction
+:- op(500,xfx, ?).    % disjunction
 
 constraint(P) :- \+ ground(P),!,fail.
 constraint(-_) :- !.
